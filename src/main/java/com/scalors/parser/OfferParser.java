@@ -19,7 +19,7 @@ public class OfferParser {
 
     private Offer offer = new Offer();
     private String offerURL;
-    private boolean loadFromDirectOffer = true;
+    private boolean loadFromDirectOffer = false;
     HTMLFactory offerPage;
 
     public OfferParser(Element offerElm) {

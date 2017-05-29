@@ -16,11 +16,13 @@ public class HTMLFactory {
 
     private boolean isLoaded;
     private Document doc;
+    private boolean saveTemt = false;
 
     public HTMLFactory(String url) {
         try {
             doc = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2")
+                    .timeout(3000)
                     .get();
 //            log.info(doc.location());
             if (url.lastIndexOf("-") >= 0 ) save(doc.html(), url.substring(url.lastIndexOf("-")));
@@ -34,7 +36,8 @@ public class HTMLFactory {
     }
 
     private void save(String html, String name) {
-        name += ".html";
+        if (!saveTemt) return;
+        name = "/temp/" + name + ".html";
 
         try {
 

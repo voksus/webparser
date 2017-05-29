@@ -58,11 +58,10 @@ public class Main {
                 JaxbParser xmlParser = new JaxbParser();
                 xmlParser.saveObject(pp.getOffers(), xmlFile);
             } catch (JAXBException e) {
+                //TODO: ???
                 e.printStackTrace();
                 log.error("JAXBException!");
             }
-        } else {
-            log.info("No offers was found.");
         }
         log.info("");
         log.info("              Done");

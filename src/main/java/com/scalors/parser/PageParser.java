@@ -17,16 +17,27 @@ import java.util.List;
 public class PageParser {
     private static final Logger log = Logger.getLogger(PageParser.class);
 
-    private static String url;
-    private static List<Offer> offerList = new ArrayList<>();
+    private String url;
+    private String nextPage;
+    private List<Offer> offerList = new ArrayList<>();
     private HTMLFactory searchPage;
     private Document doc;
-    Offers offers = new Offers();
+    private Offers offers = new Offers();
 
-    public List<Offer> start(String url) {
+    public List<Offer> start(String startUrl) {
         offers.setOffers(offerList);
-        setUrl(url);
-        parsePage();
+        setUrl(startUrl);
+        do {
+            parsePage();
+            setUrl(nextPage);
+            if (url == null) break;
+            int nextPageNumber = url.indexOf("page=");
+            if (nextPageNumber >= 0) {
+                log.info("-----------------------");
+                log.info("Loading page: " + url.substring(nextPageNumber + 5));
+                log.info("------");
+            }
+        } while (url != null);
         return offerList;
     }
 
@@ -36,12 +47,22 @@ public class PageParser {
         doc = searchPage.getDoc();
 
         if (searchPage.isLoaded()) {
-            Elements offersList = doc.getElementsByClass("list-wrapper").first()
-                    .getElementsByAttributeValue("itemprop", "itemListElement");
+            Element checkElm = doc.getElementsByClass("list-wrapper").first();
+            if (checkElm != null) {
+                Elements offersList = checkElm.getElementsByAttributeValue("itemprop", "itemListElement");
                 for (Element offerElm : offersList) {
                     Offer offer = new OfferParser(offerElm).getOffer();
                     offerList.add(offer);
                 }
+                Element nextPageElm = checkElm.getElementsByClass("col-xs-4 productlist-item-border").first();
+                if (nextPageElm != null) {
+                    nextPage = doc.baseUri() + nextPageElm.getElementsByTag("a").attr("href");
+                } else {
+                    nextPage = null;
+                }
+            } else {
+                log.info("No offers was found.");
+            }
         }
     }
 
@@ -49,8 +70,8 @@ public class PageParser {
         return offers;
     }
 
-    private static void setUrl(String url) {
-        PageParser.url = url;
+    private void setUrl(String url) {
+        this.url = url;
     }
 
 }
